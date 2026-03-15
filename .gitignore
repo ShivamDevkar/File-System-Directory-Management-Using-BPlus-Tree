@@ -1,0 +1,42 @@
+# C/C++ build outputs
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Debug/build directories
+build/
+*/build/
+**/build/
+Debug/
+Release/
+
+# CMake and generated metadata (safe even if not used)
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+
+# Logs
+logs/
+*.log
+
+# Local/runtime data (uncomment if data should stay local)
+# data/
+# *.db
+# *.dat
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
