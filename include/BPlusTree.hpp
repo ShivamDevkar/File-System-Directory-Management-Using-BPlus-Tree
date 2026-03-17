@@ -43,7 +43,7 @@ public:
     }
 
 private:
-    BPlusNode<KeyType, ValueType>* findLeaf(const KeyType &key)
+    BPlusNode<KeyType, ValueType> *findLeaf(const KeyType &key)
     {
 
         BPlusNode<KeyType, ValueType> *current = root;
@@ -67,7 +67,7 @@ public:
         }
         this->order = order;
         maxKeys = static_cast<size_t>(order - 1);
-        minKeys = ((order + 1) / 2) - 1;  // ceil(order/2) - 1 in integer arithmetic
+        minKeys = ((order + 1) / 2) - 1; // ceil(order/2) - 1 in integer arithmetic
         root = new BPlusNode<KeyType, ValueType>(true);
     }
 
@@ -260,12 +260,16 @@ private:
     // Returns -1 only if something is deeply wrong with the tree
     // structure — should never happen in a valid B+ Tree.
     // ─────────────────────────────────────────────────────────────
-    int getChildIndex(BPlusNode<KeyType, ValueType>* child, BPlusNode<KeyType, ValueType>* parent) {
-        if (child->parent == nullptr) {
+    int getChildIndex(BPlusNode<KeyType, ValueType> *child, BPlusNode<KeyType, ValueType> *parent)
+    {
+        if (child->parent == nullptr)
+        {
             return -1; // Root node has no parent
         }
-        for (size_t i = 0; i < (int)parent->children.size(); i++) {
-            if (parent->children[i] == child) {
+        for (size_t i = 0; i < (int)parent->children.size(); i++)
+        {
+            if (parent->children[i] == child)
+            {
                 return static_cast<int>(i);
             }
         }
@@ -286,16 +290,16 @@ private:
     //
     // Returns nullptr if node is the leftmost child (no left sibling).
     // ─────────────────────────────────────────────────────────────
-    BPlusNode<KeyType, ValueType>* getLeftSibling(
-        BPlusNode<KeyType, ValueType>* node,
-        int& parentKeyIndex)
+    BPlusNode<KeyType, ValueType> *getLeftSibling(
+        BPlusNode<KeyType, ValueType> *node,
+        int &parentKeyIndex)
     {
-        if (node->parent == nullptr) return nullptr;
+        if (node->parent == nullptr)
+            return nullptr;
 
-        int childIdx = getChildIndex(node->parent, node);
-
-        // If node is already the leftmost child, no left sibling exists
-        if (childIdx <= 0) return nullptr;
+        int childIdx = getChildIndex(node, node->parent); // If node is already the leftmost child, no left sibling exists
+        if (childIdx <= 0)
+            return nullptr;
 
         // The separator key between left sibling and this node
         // sits at index childIdx - 1 in the parent's keys array
@@ -303,7 +307,7 @@ private:
         return node->parent->children[childIdx - 1];
     }
 
-     // ─────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────
     // Returns the RIGHT sibling of 'node'.
     //
     // parentKeyIndex gets set to the separator key index between
@@ -311,17 +315,19 @@ private:
     //
     // Returns nullptr if node is the rightmost child.
     // ─────────────────────────────────────────────────────────────
-    BPlusNode<KeyType, ValueType>* getRightSibling(
-        BPlusNode<KeyType, ValueType>* node,
-        int& parentKeyIndex)
+    BPlusNode<KeyType, ValueType> *getRightSibling(
+        BPlusNode<KeyType, ValueType> *node,
+        int &parentKeyIndex)
     {
-        if (node->parent == nullptr) return nullptr;
+        if (node->parent == nullptr)
+            return nullptr;
 
         int childIdx = getChildIndex(node->parent, node);
-        int lastIdx  = (int)node->parent->children.size() - 1;
+        int lastIdx = (int)node->parent->children.size() - 1;
 
         // If node is already the rightmost child, no right sibling exists
-        if (childIdx >= lastIdx) return nullptr;
+        if (childIdx >= lastIdx)
+            return nullptr;
 
         // The separator key between this node and right sibling
         // sits at index childIdx in the parent's keys array
@@ -344,18 +350,18 @@ private:
     //   This keeps the tree's ordering invariant intact.
     // ─────────────────────────────────────────────────────────────
     void borrowFromLeft(
-        BPlusNode<KeyType, ValueType>* node,
-        BPlusNode<KeyType, ValueType>* leftSibling,
+        BPlusNode<KeyType, ValueType> *node,
+        BPlusNode<KeyType, ValueType> *leftSibling,
         int parentKeyIndex)
     {
         if (node->isLeaf)
         {
             // Take the last key+value from left sibling
-            KeyType   borrowedKey   = leftSibling->keys.back();
+            KeyType borrowedKey = leftSibling->keys.back();
             ValueType borrowedValue = leftSibling->values.back();
 
             // Insert borrowed entry at the FRONT of current node
-            node->keys.insert(node->keys.begin(),     borrowedKey);
+            node->keys.insert(node->keys.begin(), borrowedKey);
             node->values.insert(node->values.begin(), borrowedValue);
 
             // Remove the borrowed entry from left sibling
@@ -373,7 +379,7 @@ private:
             node->keys.insert(node->keys.begin(), parentKey);
 
             // Adopt left sibling's last child as this node's first child
-            BPlusNode<KeyType, ValueType>* adoptedChild = leftSibling->children.back();
+            BPlusNode<KeyType, ValueType> *adoptedChild = leftSibling->children.back();
             node->children.insert(node->children.begin(), adoptedChild);
             adoptedChild->parent = node;
 
@@ -393,14 +399,14 @@ private:
     // FRONT of the right sibling and append to the END of this node.
     // ─────────────────────────────────────────────────────────────
     void borrowFromRight(
-        BPlusNode<KeyType, ValueType>* node,
-        BPlusNode<KeyType, ValueType>* rightSibling,
+        BPlusNode<KeyType, ValueType> *node,
+        BPlusNode<KeyType, ValueType> *rightSibling,
         int parentKeyIndex)
     {
         if (node->isLeaf)
         {
             // Take the first key+value from right sibling
-            KeyType   borrowedKey   = rightSibling->keys.front();
+            KeyType borrowedKey = rightSibling->keys.front();
             ValueType borrowedValue = rightSibling->values.front();
 
             // Append borrowed entry to the END of current node
@@ -421,7 +427,7 @@ private:
             node->keys.push_back(parentKey);
 
             // Adopt right sibling's first child as this node's last child
-            BPlusNode<KeyType, ValueType>* adoptedChild = rightSibling->children.front();
+            BPlusNode<KeyType, ValueType> *adoptedChild = rightSibling->children.front();
             node->children.push_back(adoptedChild);
             adoptedChild->parent = node;
 
@@ -455,8 +461,8 @@ private:
     // cascade — this is the recursive chain we discussed earlier.
     // ─────────────────────────────────────────────────────────────
     void mergeNodes(
-        BPlusNode<KeyType, ValueType>* left,
-        BPlusNode<KeyType, ValueType>* right,
+        BPlusNode<KeyType, ValueType> *left,
+        BPlusNode<KeyType, ValueType> *right,
         int parentKeyIndex)
     {
         if (left->isLeaf)
@@ -482,12 +488,12 @@ private:
             left->keys.push_back(separatorKey);
 
             // Copy all keys from right into left
-            for (auto& k : right->keys)
+            for (auto &k : right->keys)
                 left->keys.push_back(k);
 
             // Copy all children from right into left
             // and update each child's parent pointer to left
-            for (auto& child : right->children)
+            for (auto &child : right->children)
             {
                 left->children.push_back(child);
                 child->parent = left;
@@ -528,7 +534,7 @@ private:
     // its only remaining child becomes the new root and the
     // tree shrinks by one level.
     // ─────────────────────────────────────────────────────────────
-    void fixUnderflow(BPlusNode<KeyType, ValueType>* node)
+    void fixUnderflow(BPlusNode<KeyType, ValueType> *node)
     {
         // Root gets special treatment — no minimum key requirement
         if (node->isRoot())
@@ -537,7 +543,7 @@ private:
             // merged everything into one level below — shrink tree
             if (!node->isLeaf && node->keys.empty())
             {
-                BPlusNode<KeyType, ValueType>* newRoot = node->children[0];
+                BPlusNode<KeyType, ValueType> *newRoot = node->children[0];
                 newRoot->parent = nullptr;
                 root = newRoot;
 
@@ -552,15 +558,16 @@ private:
         }
 
         // If this node still has enough keys, nothing to fix
-        if ((int)node->keys.size() >= minKeys) return;
+        if ((int)node->keys.size() >= minKeys)
+            return;
 
         // Discover siblings and their separator positions
-        int leftParentKeyIndex  = -1;
+        int leftParentKeyIndex = -1;
         int rightParentKeyIndex = -1;
 
-        BPlusNode<KeyType, ValueType>* leftSibling =
+        BPlusNode<KeyType, ValueType> *leftSibling =
             getLeftSibling(node, leftParentKeyIndex);
-        BPlusNode<KeyType, ValueType>* rightSibling =
+        BPlusNode<KeyType, ValueType> *rightSibling =
             getRightSibling(node, rightParentKeyIndex);
 
         // Priority 1: borrow from left if it has a key to spare
@@ -590,7 +597,7 @@ private:
     }
 
 public:
-    void displayTree()  
+    void displayTree()
     {
         if (root == nullptr)
         {
@@ -674,11 +681,11 @@ public:
     // leaf does not affect any separator above.
     // ─────────────────────────────────────────────────────────────
     void updateParentKey(
-        BPlusNode<KeyType, ValueType>* leaf,
-        const KeyType& oldKey,
-        const KeyType& newKey)
+        BPlusNode<KeyType, ValueType> *leaf,
+        const KeyType &oldKey,
+        const KeyType &newKey)
     {
-        BPlusNode<KeyType, ValueType>* current = leaf->parent;
+        BPlusNode<KeyType, ValueType> *current = leaf->parent;
 
         while (current != nullptr)
         {
@@ -709,9 +716,9 @@ public:
     //      minimum-key violation and its upward cascade
     //   7. Return true
     // ─────────────────────────────────────────────────────────────
-    bool remove(const KeyType& key)
+    bool remove(const KeyType &key)
     {
-        BPlusNode<KeyType, ValueType>* leaf = findLeaf(key);
+        BPlusNode<KeyType, ValueType> *leaf = findLeaf(key);
 
         // Search leaf linearly for the exact key
         int keyIndex = -1;
@@ -725,10 +732,11 @@ public:
         }
 
         // Key does not exist in the tree at all
-        if (keyIndex == -1) return false;
+        if (keyIndex == -1)
+            return false;
 
         // Erase the key and its paired value from the leaf
-        leaf->keys.erase(leaf->keys.begin()   + keyIndex);
+        leaf->keys.erase(leaf->keys.begin() + keyIndex);
         leaf->values.erase(leaf->values.begin() + keyIndex);
 
         // If we deleted the first key (index 0) of this leaf,
