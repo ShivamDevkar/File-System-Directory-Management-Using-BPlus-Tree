@@ -5,7 +5,6 @@
 #include <vector>
 #include <stdexcept>
 #include "BPlusNode.hpp"
-using namespace std;
 
 template <typename KeyType, typename ValueType>
 class BPlusTree
@@ -16,6 +15,33 @@ private:
     int order;
     size_t maxKeys;
 
+public:
+    // Disable copy operations to prevent double-free
+    BPlusTree(const BPlusTree &) = delete;
+    BPlusTree &operator=(const BPlusTree &) = delete;
+
+    // Optionally enable move semantics
+    BPlusTree(BPlusTree &&other) noexcept
+        : root(other.root), order(other.order), maxKeys(other.maxKeys)
+    {
+        other.root = nullptr;
+    }
+
+    BPlusTree &operator=(BPlusTree &&other) noexcept
+    {
+        if (this != &other)
+        {
+            // Delete current tree (use proper cleanup)
+            delete root;
+            root = other.root;
+            order = other.order;
+            maxKeys = other.maxKeys;
+            other.root = nullptr;
+        }
+        return *this;
+    }
+
+private:
     BPlusNode<KeyType, ValueType> *findLeaf(const KeyType &key)
     {
 
@@ -34,8 +60,9 @@ private:
 public:
     BPlusTree(int order = 4)
     {
-        if(order < 3){
-            throw invalid_argument("B+ tree order must be >= 3");
+        if (order < 3)
+        {
+            throw std::invalid_argument("B+ tree order must be >= 3");
         }
         this->order = order;
         maxKeys = static_cast<size_t>(order - 1);
@@ -44,7 +71,9 @@ public:
 
     ~BPlusTree()
     {
+        // BPlusNode recursively deletes child pointers.
         delete root;
+        root = nullptr;
     }
 
     bool search(const KeyType &key, ValueType &result)
@@ -93,18 +122,19 @@ public:
 
         while (leaf != nullptr)
         {
-            cout << "[ ";
+            std::cout << "[ ";
             for (auto key : leaf->keys)
-                cout << key << " ";
+                std::cout << key << " ";
 
-            cout << "] -> ";
+            std::cout << "] -> ";
 
             leaf = leaf->next;
         }
 
-        cout << "NULL\n";
+        std::cout << "NULL\n";
     }
 
+private:
     void splitInternal(BPlusNode<KeyType, ValueType> *node)
     {
         BPlusNode<KeyType, ValueType> *newInternal = new BPlusNode<KeyType, ValueType>(false);
@@ -219,6 +249,7 @@ public:
         insertInParent(leaf, promoteKey, newLeaf);
     }
 
+public:
     void displayTree()
     {
         if (root == nullptr)
@@ -265,7 +296,7 @@ public:
 
     vector<ValueType> rangeSearch(const KeyType &startKey, const KeyType &endKey)
     {
-        vector<ValueType> result;
+        std::vector<ValueType> result;
 
         BPlusNode<KeyType, ValueType> *leaf = findLeaf(startKey);
 

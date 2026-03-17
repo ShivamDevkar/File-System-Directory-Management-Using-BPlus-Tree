@@ -3,8 +3,7 @@
 using namespace std;
 
 // g++ src/main.cpp -Iinclude -o main
-// after this next commmand is .\main  or ./main (check which works)
-
+// after this next command is .\main  or ./main (check which works)
 int main()
 {
     BPlusTree<int, int> tree;

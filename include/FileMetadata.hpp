@@ -2,6 +2,8 @@
 
 #include<string>
 #include<ctime>
+#include <sstream>
+#include <iomanip>
 using namespace std;
 
 // Represents the type of an entry in the file system 
@@ -81,10 +83,19 @@ struct FileMetadata {
         if (entryType == EntryType::DIRECTORY) return "—";
         if (fileSize < 1024)
             return to_string(fileSize) + " B";
-        else if (fileSize < 1024 * 1024)
-            return to_string((double)fileSize / 1024.0) + " KB";
-        else
-            return to_string((double)fileSize / (1024.0 * 1024.0)) + " MB";
+        // else if (fileSize < 1024 * 1024)
+        //     return to_string((double)fileSize / 1024.0) + " KB";
+        // else
+        //     return to_string((double)fileSize / (1024.0 * 1024.0)) + " MB";
+
+        ostringstream oss;
+    oss << fixed << setprecision(2);
+    if (fileSize < 1024 * 1024) {
+        oss << (static_cast<double>(fileSize) / 1024.0) << " KB";
+    } else {
+        oss << (static_cast<double>(fileSize) / (1024.0 * 1024.0)) << " MB";
+    }
+    return oss.str();
     }
 
     // Returns last modified time as a readable string
